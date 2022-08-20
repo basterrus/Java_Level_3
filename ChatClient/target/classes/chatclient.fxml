@@ -47,30 +47,15 @@
                     </TextArea>
                     <HBox prefHeight="80.0">
                         <children>
-                            <Button fx:id="btnAttachment" minHeight="80.0" minWidth="80.0" onAction="#btnAttach" focusTraversable="false">
-                                <graphic>
-                                    <ImageView fitHeight="70.0" fitWidth="70.0">
-                                        <image>
-                                            <Image url="/attachment.png"/>
-                                        </image>
-                                    </ImageView>
-                                </graphic>
-                            </Button>
+                            <Button fx:id="btnAttachment" minHeight="80.0" minWidth="80.0" onAction="#btnAttach"
+                                    focusTraversable="false"/>
                             <TextArea fx:id="inputText" onKeyPressed="#pressEnter" focusTraversable="false"
                                       promptText="press Shift+Enter to send" wrapText="true" HBox.hgrow="ALWAYS">
                                 <HBox.margin>
                                     <Insets left="3.0" right="3.0"/>
                                 </HBox.margin>
                             </TextArea>
-                            <Button fx:id="btnSendMessage" minHeight="80.0" minWidth="80.0" onAction="#btnSend" focusTraversable="false">
-                                <graphic>
-                                    <ImageView fitHeight="70.0" fitWidth="70.0">
-                                        <image>
-                                            <Image url="/email.png"/>
-                                        </image>
-                                    </ImageView>
-                                </graphic>
-                            </Button>
+                            <Button fx:id="btnSendMessage" minHeight="80.0" minWidth="80.0" onAction="#btnSend" focusTraversable="false" />
                         </children>
                     </HBox>
                 </children>
