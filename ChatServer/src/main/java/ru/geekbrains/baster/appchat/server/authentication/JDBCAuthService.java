@@ -16,7 +16,6 @@ public class JDBCAuthService implements AuthService{
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:ChatServer/src/main/resources/authbase.db");
             statement = connection.createStatement();
-            // Сервер напечатает зарегистрированных пользователей
             registeredUsers();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -68,9 +67,7 @@ public class JDBCAuthService implements AuthService{
     @Override
     public boolean changeUserName (String newName, String oldName) {
         boolean changeSuccess = false;
-        // проверить допустимость Ника - валидные символы итд
-        // проверить не занят ли выбранный Ник
-        // "@nonymous" могут стать все - сделано для проверки, в будущем можно убрать
+
         if ((isNotBusyName(newName) && isValidName(newName)) || newName.equals("@nonymous")) {
             try {
                 PreparedStatement ps = connection.prepareStatement("update auth set name = ? where name = ?;");

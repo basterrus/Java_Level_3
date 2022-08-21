@@ -1,9 +1,5 @@
 package ru.geekbrains.baster.appchat.common;
 
-/**
- * Перечисление типов сообщений чтоб было их удобно категоризировать и обрабатывать
- */
-
 public enum MessageType {
     PUBLIC_MESSAGE,
     PRIVATE_MESSAGE,
