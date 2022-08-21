@@ -10,37 +10,45 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ChatServer {
+    private static final Logger LOG = LogManager.getLogger(ChatServer.class.getName());
     private static final int PORT = 65500;
     private List<ClientHandler> clientHandlerList;
     private AuthService authService;
+    private ExecutorService executorService;
 
     public AuthService getAuthService() {
         return authService;
     }
 
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
+
     public ChatServer() {
         try (ServerSocket serverSocket = new ServerSocket(PORT)){
-            System.out.println("Server started");
-            /**
-             * здесь выбрать нужный сервис аутентификации
-             */
-//            authService = new BaseAuthService();
+            LOG.trace("Server started");
             authService = new JDBCAuthService();
             authService.start();
             clientHandlerList = new LinkedList<>();
+            executorService = Executors.newCachedThreadPool();
             while (true) {
-                System.out.println("Waiting new connection...");
+                LOG.trace("Waiting new connection...");
                 Socket socket = serverSocket.accept();
-                System.out.println("Client connected");
+                LOG.trace("Client connected");
                 new ClientHandler(this, socket);
             }
         } catch (IOException e) {
-            System.out.println("Server error");
-            e.printStackTrace();
+            LOG.error("Server error", e);
         } finally {
+            if (executorService != null) {
+                executorService.shutdown();
+            }
             if (authService != null) {
                 authService.stop();
             }
@@ -85,12 +93,12 @@ public class ChatServer {
     public synchronized void subscribe(ClientHandler client) {
         clientHandlerList.add(client);
         broadcastClientsOnline();
-        System.out.println(client.getName() + " subscribed");
+        LOG.info("{} subscribed", client.getName());
     }
 
     public synchronized void unsubscribe(ClientHandler client) {
         clientHandlerList.remove(client);
         broadcastClientsOnline();
-        System.out.println(client.getName() + " unsubscribed");
+        LOG.info("{} unsubscribed", client.getName());
     }
 }

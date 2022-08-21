@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Временный сервис авторизации с хардкодом юзеров
- */
-
-public class BaseAuthService implements AuthService{
+public class BaseAuthService implements AuthService {
     private List<ChatUser> clientList;
 
     public BaseAuthService() {

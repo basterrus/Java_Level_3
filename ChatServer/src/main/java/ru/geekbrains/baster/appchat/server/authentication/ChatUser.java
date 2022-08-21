@@ -1,9 +1,5 @@
 package ru.geekbrains.baster.appchat.server.authentication;
 
-/**
- * Сущность клиента для идентификации и авторизации
- */
-
 public class ChatUser {
     private String username;
     private String login;

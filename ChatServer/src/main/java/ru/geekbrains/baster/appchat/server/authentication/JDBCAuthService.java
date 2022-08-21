@@ -23,11 +23,7 @@ public class JDBCAuthService implements AuthService{
     }
 
     private void registeredUsers() throws SQLException {
-        System.out.println("NameUser Log Pass");
         ResultSet res = statement.executeQuery("select * from auth");
-        while (res.next()){
-            System.out.println(res.getString("name") + "  " + res.getString("log") + "  " + res.getString("pass"));
-        }
     }
 
     @Override
@@ -57,7 +53,6 @@ public class JDBCAuthService implements AuthService{
             ps.setString(1, login);
             ResultSet result = ps.executeQuery();
             if (result.getString("pass").equals(pass)) userName = result.getString("name");
-            System.out.println(userName + " authenticated");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

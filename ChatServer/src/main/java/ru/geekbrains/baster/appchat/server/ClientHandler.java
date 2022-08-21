@@ -10,7 +10,11 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class ClientHandler {
+    private static final Logger LOG = LogManager.getLogger(ClientHandler.class.getName());
     private final long AUTH_TIME = 120_000;
     private final Socket socket;
     private final DataOutputStream outputStream;
@@ -32,22 +36,25 @@ public class ClientHandler {
             this.handlerUserName = null;
             this.timer = null;
             serverMessage(MessageType.SERVICE_MESSAGE, "onLine  —  Authentication is required");
-            new Thread(() -> {
-                try {
-                    while (!socket.isClosed()) readMessages();
-                } catch (Exception e) {
-                    if (!socket.isClosed()) e.printStackTrace();
-                } finally {
-                    if (!socket.isClosed()) {
-                        System.out.println("Finally close connection");
-                        CloseConnection();
-                    }
-                }
-            }).start();
+            chatServer.getExecutorService().execute(() -> handlerChannel());
         } catch (IOException e) {
-            throw new RuntimeException("Something wrong with ClientHandler");
+            LOG.error("Something wrong with ClientHandler", e);
+            throw new RuntimeException(e);
         }
         timeForAuth();
+    }
+
+    private void handlerChannel() {
+        try {
+            while (!socket.isClosed()) readMessages();
+        } catch (Exception e) {
+            if (!socket.isClosed()) LOG.error("Socket is closed", e);
+        } finally {
+            if (!socket.isClosed()) {
+                LOG.trace("Finally close connection");
+                CloseConnection();
+            }
+        }
     }
 
     private void timeForAuth() {
@@ -84,8 +91,7 @@ public class ClientHandler {
             handlerUserName = dto.getBody();
             serverMessage(MessageType.AUTH_CHANGE_NAME, handlerUserName);
             chatServer.broadcastClientsOnline();
-        }
-        else serverMessage(MessageType.AUTH_CHANGE_NAME, "This NICK is busy");
+        } else serverMessage(MessageType.AUTH_CHANGE_NAME, "This NICK is busy");
     }
 
     public void sendMessage(MessageDTO dto) {
@@ -94,7 +100,7 @@ public class ClientHandler {
                 outputStream.writeUTF(dto.convertToJson());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Can not send messages", e);
         }
     }
 
@@ -121,7 +127,7 @@ public class ClientHandler {
         String userName = chatServer.getAuthService().getUsernameByLoginPass(login, password);
         if (userName == null || chatServer.isNickBusy(userName)) {
             serverMessage(MessageType.ERROR_MESSAGE, "Incorrect Login or Password");
-            System.out.println("Authentication error");
+            LOG.warn("Authentication error");
         } else {
             handlerUserName = userName;
             timer.cancel();
@@ -131,6 +137,7 @@ public class ClientHandler {
     }
 
     private void userLogOut() {
+        // В обратном порядке относительно подключения
         chatServer.unsubscribe(this);
         serverMessage(MessageType.AUTH_OFF_MESSAGE, "onLine  —  Authentication is required");
         handlerUserName = null;
@@ -141,18 +148,18 @@ public class ClientHandler {
         try {
             inputStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("inputStream->close", e);
         }
         try {
             outputStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("outputStream->close", e);
         }
         try {
             socket.close();
-            if (socket.isClosed()) System.out.println("Socket close, client disconnected");
+            if (socket.isClosed()) LOG.trace("Socket close, client disconnected");
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("socket->close", e);
         }
     }
 }
