@@ -13,6 +13,7 @@
         <module>ChatClientNetwork</module>
         <module>ChatCommon</module>
         <module>ChatServer</module>
+        <module>Lesson_7</module>
     </modules>
     <dependencies>
         <dependency>
